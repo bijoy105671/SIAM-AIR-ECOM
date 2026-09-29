@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          // A. Intercept unhandled errors matching "Cannot set property fetch" to avoid false uncaught exceptions
+          if (typeof window !== 'undefined') {
+            window.addEventListener('error', function(event) {
+              if (event && event.message && event.message.indexOf('Cannot set property fetch') !== -1) {
+                if (event.preventDefault) event.preventDefault();
+                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+                return true;
+              }
+            }, true);
+
+            var prevOnError = window.onerror;
+            window.onerror = function(msg, url, line, col, error) {
+              if (typeof msg === 'string' && msg.indexOf('Cannot set property fetch') !== -1) {
+                return true;
+              }
+              if (typeof prevOnError === 'function') {
+                return prevOnError.apply(this, arguments);
+              }
+            };
+          }
+
+          // B. Intercept Object.defineProperty and Object.defineProperties to ensure any getter for 'fetch' has a setter
+          var origDefineProp = Object.defineProperty;
+          Object.defineProperty = function(obj, prop, descriptor) {
+            if (prop === 'fetch' && descriptor && descriptor.get && !descriptor.set) {
+              var overrideVal;
+              var originalGetter = descriptor.get;
+              descriptor.get = function() {
+                return overrideVal !== undefined ? overrideVal : originalGetter.call(this);
+              };
+              descriptor.set = function(newVal) {
+                overrideVal = newVal;
+              };
+              descriptor.configurable = true;
+            }
+            return origDefineProp.call(Object, obj, prop, descriptor);
+          };
+
+          var origDefineProps = Object.defineProperties;
+          Object.defineProperties = function(obj, props) {
+            if (props && props.fetch && props.fetch.get && !props.fetch.set) {
+              var overrideVal;
+              var originalGetter = props.fetch.get;
+              props.fetch.get = function() {
+                return overrideVal !== undefined ? overrideVal : originalGetter.call(this);
+              };
+              props.fetch.set = function(newVal) {
+                overrideVal = newVal;
+              };
+              props.fetch.configurable = true;
+            }
+            return origDefineProps.call(Object, obj, props);
+          };
+
+          // C. Patch existing Window.prototype.fetch and window.fetch if present
+          var globalObj = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null);
+          if (!globalObj) return;
+
+          var origFetch = globalObj.fetch ? globalObj.fetch.bind(globalObj) : undefined;
+          var currentFetch = origFetch;
+
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              var protoDesc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+              if (protoDesc && protoDesc.get && !protoDesc.set && protoDesc.configurable) {
+                origDefineProp.call(Object, Window.prototype, 'fetch', {
+                  get: function() { return currentFetch; },
+                  set: function(fn) { currentFetch = fn; },
+                  configurable: true,
+                  enumerable: protoDesc.enumerable !== false
+                });
+              }
+            } catch (e) {}
+          }
+
+          try {
+            var winDesc = Object.getOwnPropertyDescriptor(globalObj, 'fetch');
+            if (!winDesc || (winDesc.get && !winDesc.set)) {
+              if (!winDesc || winDesc.configurable) {
+                origDefineProp.call(Object, globalObj, 'fetch', {
+                  get: function() { return currentFetch; },
+                  set: function(fn) { currentFetch = fn; },
+                  configurable: true,
+                  enumerable: true
+                });
+              }
+            }
+          } catch (e) {}
+        } catch (err) {}
+      })();
+    </script>
+    <title>Siam Air & Digital Service – Flights, Visas, Umrah & Digital Services</title>
+    <meta name="description" content="Trusted travel agency in Bangladesh providing professional air ticketing, visa processing, Umrah packages, hotel booking, and digital services in Homna, Cumilla." />
+    <meta property="og:title" content="Siam Air & Digital Service – Flights, Visas, Umrah & Digital Services" />
+    <meta property="og:description" content="Professional travel assistance for air tickets, visa processing, Umrah packages and digital services in Homna, Cumilla, Bangladesh." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Siam Air & Digital Service" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Siam Air & Digital Service – Flights, Visas, Umrah" />
+    <meta name="twitter:description" content="Professional travel assistance for air tickets, visa processing, Umrah packages and digital services in Homna, Cumilla, Bangladesh." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      "name": "Siam Air & Digital Service",
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1200&auto=format&fit=crop",
+      "telephone": "+8801883400808",
+      "email": "bijoy105671@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Ramkrishnapur Bazar, Shutradhar Super Market",
+        "addressLocality": "Homna",
+        "addressRegion": "Cumilla",
+        "addressCountry": "BD"
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+          "opens": "09:00",
+          "closes": "21:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Friday",
+          "opens": "15:00",
+          "closes": "21:00"
+        }
+      ],
+      "priceRange": "$$"
+    }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,6 @@
+{
+  "name": "Siam Air & Digital Service",
+  "description": "Trusted travel agency in Bangladesh providing air ticketing, visa processing, Umrah packages, and computer & digital services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
