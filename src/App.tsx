@@ -90,7 +90,7 @@ const AdminGate: React.FC<{ navigate: (path: string) => void }> = ({ navigate })
       case '/refund':
         return <LegalPage navigate={navigate} defaultTab="refund" />;
       case '/admin':
-        return <AdminPage navigate={navigate} />;
+        return <AdminGate navigate={navigate} />;
       case '/upload':
         return <CustomerUploadPage navigate={navigate} />;
       case '/studio':
