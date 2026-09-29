@@ -9,7 +9,7 @@ const AIRLINES:Record<string,string>={
  'SV':'Saudia','OV':'SalamAir','WY':'Oman Air','GF':'Gulf Air','KU':'Kuwait Airways','MH':'Malaysia Airlines',
  '6E':'IndiGo','AI':'Air India','IX':'Air India Express','FZ':'Flydubai','EY':'Etihad Airways','TK':'Turkish Airlines'
 };
-const logo=(code:string)=>code?\`https://images.kiwi.com/airlines/64/\${code.toUpperCase()}.png\`:''; 
+const logo=(code:string)=>code ? 'https://images.kiwi.com/airlines/64/'+code.toUpperCase()+'.png' : '';
 
 function FareCalculator(){
  const [mode,setMode]=useState<'net'|'reissue'|'refund'>('net'); const [v,setV]=useState<Record<string,string>>({});
