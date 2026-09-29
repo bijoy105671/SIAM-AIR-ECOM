@@ -97,16 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, navigate }) => {
             >
               <span>ফটো স্টুডিও</span>
             </button>
-            <span className="text-slate-600">|</span>
-            <button
-              onClick={() => handleNavClick('/admin')}
-              className="text-slate-400 hover:text-white flex items-center gap-1 transition-colors text-[11px] cursor-pointer"
-              title="Admin Portal"
-            >
-              <Shield className="w-3 h-3 text-amber-400" />
-              <span>{lang === 'bn' ? 'অ্যাডমিন' : 'Admin'}</span>
-            </button>
-          </div>
+            <span className="text-slate-600">|</span>\n</div>
         </div>
       </div>
 
