@@ -82,7 +82,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY_PREFIX = 'siam_air_';
-const ACCOUNTING_API_URL = String((import.meta as any).env?.VITE_ACCOUNTING_API_URL || 'https://siam-air-digital-service.onrender.com').replace(/\\/$/, '');
+const ACCOUNTING_API_URL = String((import.meta as any).env?.VITE_ACCOUNTING_API_URL || 'https://siam-air-digital-service.onrender.com').replace(/\/$/, '');
 
 
 function loadFromStorage<T>(key: string, fallback: T): T {
