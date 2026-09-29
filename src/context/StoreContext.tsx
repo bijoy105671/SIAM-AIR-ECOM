@@ -20,7 +20,7 @@ export const StoreProvider:React.FC<{children:React.ReactNode}>=({children})=>{
  const [customer,setCustomer]=useState<Customer|null>(null); const [orders,setOrders]=useState<Order[]>([]); const [loading,setLoading]=useState(true);
  const [toast,setToast]=useState<string|null>(null);
  const notice=(m:string)=>{setToast(m);window.setTimeout(()=>setToast(null),3000);};
- const refresh=async()=>{try{const p=await request<any>('/api/storefront');setIdentity(p.settings);setSettings(p.ecommerce||{});setProducts(p.products||[]);}catch(e){console.error(e)}finally{setLoading(false)}};
+ const refresh=async()=>{try{const p=await request<any>('/api/storefront');setIdentity(p.settings);setSettings(p.ecommerce||{});const ecommerceProducts=(p.products||[]) as Product[];const serviceProducts=(p.services||[]).map((s:any)=>({id:'service-'+s.id,kind:'service',name:String(s.name||'Service'),name_bn:String(s.name||'Service'),description:'Service from SIAM AIR & DIGITAL SERVICE',category:String(s.category||'Services'),price:0,stock:null,active:true,featured:false}));setProducts([...ecommerceProducts,...serviceProducts.filter((s:any)=>!ecommerceProducts.some((p:Product)=>p.kind==='service'&&p.name.toLowerCase()===s.name.toLowerCase()))]);}catch(e){console.error(e)}finally{setLoading(false)}};
  useEffect(()=>{void refresh();const i=window.setInterval(refresh,60000);return()=>window.clearInterval(i)},[]);
  useEffect(()=>{try{localStorage.setItem('siam_ecom_cart',JSON.stringify(cart))}catch{}},[cart]);
  useEffect(()=>{const token=localStorage.getItem('siam_ecom_customer_token');if(token){request<any>('/api/storefront/me').then(p=>setCustomer(p.customer)).catch(()=>localStorage.removeItem('siam_ecom_customer_token'))}},[]);
