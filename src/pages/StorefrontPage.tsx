@@ -20,7 +20,7 @@ function ProductCard({p,navigate}:{p:Product;navigate:(p:string)=>void}){
    <p className="text-xs text-slate-500 mt-1 line-clamp-2 min-h-8">{p.description||'SIAM AIR & DIGITAL SERVICE'}</p>
    <div className="flex items-end justify-between gap-2 mt-4">
     <div><div className="text-xl font-black">৳{Number(p.price).toLocaleString()}</div>{p.compare_price&&<div className="text-xs text-slate-400 line-through">৳{Number(p.compare_price).toLocaleString()}</div>}</div>
-    <button disabled={soldOut} onClick={add} className="px-3 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-black disabled:opacity-40">{Order Service}</button>
+    <button disabled={soldOut} onClick={add} className="px-3 py-2.5 rounded-xl bg-slate-950 text-white text-xs font-black disabled:opacity-40">Order Service</button>
    </div>
   </div>
  </article>;
