@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
 @layer base {
+  html { scroll-behavior:smooth; }
   body {
-    font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin:0;
+    font-family:'Hind Siliguri','Plus Jakarta Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#f8fafc;
+    color:#0f172a;
   }
+  button,input,select,textarea { font:inherit; }
+  button { -webkit-tap-highlight-color:transparent; }
+}
+
+@layer utilities {
+  .safe-bottom { padding-bottom:env(safe-area-inset-bottom); }
 }
