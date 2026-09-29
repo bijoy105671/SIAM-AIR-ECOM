@@ -1,174 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { AppProvider, useApp } from './context/AppContext';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
-import { FloatingWhatsApp } from './components/FloatingWhatsApp';
-import { MobileQuickBar } from './components/MobileQuickBar';
-import { QuickEnquiryModal } from './components/QuickEnquiryModal';
-import { QrLightboxModal } from './components/QrLightboxModal';
-import { NotificationToast } from './components/NotificationToast';
+import React,{useState} from 'react';
+import {Menu,Search,ShoppingCart,UserRound,X,Phone,MessageCircle} from 'lucide-react';
+import {StoreProvider,useStore} from './context/StoreContext';
+import StorefrontPage from './pages/StorefrontPage';
+import AccountPage from './pages/AccountPage';
 
-// Pages
-import { HomePage } from './pages/HomePage';
-import { AirTicketPage } from './pages/AirTicketPage';
-import { VisaHubPage } from './pages/VisaHubPage';
-import { IndiaVisaPage } from './pages/IndiaVisaPage';
-import { ThailandVisaPage } from './pages/ThailandVisaPage';
-import { SaudiVisaPage } from './pages/SaudiVisaPage';
-import { UmrahPage } from './pages/UmrahPage';
-import { OtherServicesPage } from './pages/OtherServicesPage';
-import { PaymentPage } from './pages/PaymentPage';
-import { AboutPage } from './pages/AboutPage';
-import { ContactPage } from './pages/ContactPage';
-import { FAQPage } from './pages/FAQPage';
-import { BlogPage } from './pages/BlogPage';
-import { LegalPage } from './pages/LegalPage';
-import { AdminPage } from './pages/AdminPage';
-import { CustomerUploadPage } from './pages/CustomerUploadPage';
-import { PhotoStudioPage } from './pages/PhotoStudioPage';
-import { SignatureToolPage } from './pages/SignatureToolPage';
-import { DocumentToolsPage } from './pages/DocumentToolsPage';
-import { QrStandsPage } from './pages/QrStandsPage';
-import { PrintTemplatesPage } from './pages/PrintTemplatesPage';
-
-const AdminGate: React.FC<{ navigate: (path: string) => void }> = ({ navigate }) => {
-  const [pin, setPin] = useState('');
-  const [authenticated, setAuthenticated] = useState(() => localStorage.getItem('siam_ecom_admin_session') === '1');
-  const configuredPin = (import.meta as any).env?.VITE_ADMIN_PIN || '2580';
-
-  if (authenticated) return <AdminPage navigate={navigate} />;
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pin === configuredPin) {
-      localStorage.setItem('siam_ecom_admin_session', '1');
-      setAuthenticated(true);
-      return;
-    }
-    alert('Invalid admin PIN');
-    setPin('');
-  };
-
-  return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 bg-slate-50">
-      <form onSubmit={submit} className="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-xl p-6 space-y-4">
-        <div className="text-center">
-          <div className="text-3xl mb-2">🔐</div>
-          <h1 className="text-xl font-extrabold text-slate-900">Admin Access</h1>
-          <p className="text-xs text-slate-500 mt-1">Private management area</p>
-        </div>
-        <input autoFocus type="password" inputMode="numeric" value={pin} onChange={e => setPin(e.target.value)} placeholder="Admin PIN" className="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-blue-500" />
-        <button type="submit" className="w-full py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800">Enter Admin</button>
-        <button type="button" onClick={() => navigate('/')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-900">Back to website</button>
-      </form>
-    </div>
-  );
+const Header=({navigate,path}:{navigate:(p:string)=>void;path:string})=>{
+ const {identity,cart,customer}=useStore();const [open,setOpen]=useState(false);const [search,setSearch]=useState('');
+ const go=(p:string)=>{setOpen(false);navigate(p)};
+ return <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
+  <button className="lg:hidden p-2 rounded-xl bg-slate-100" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button>
+  <button onClick={()=>go('/')} className="flex items-center gap-2 min-w-0"><div className="w-10 h-10 rounded-xl bg-slate-950 overflow-hidden grid place-items-center">{identity.logoUrl?<img src={identity.logoUrl} className="w-full h-full object-contain"/>:<span className="text-white font-black">SA</span>}</div><div className="hidden sm:block text-left"><div className="font-black leading-none truncate max-w-[190px]">{identity.name}</div><div className="text-[10px] text-slate-500 mt-1 truncate max-w-[190px]">{identity.tagline}</div></div></button>
+  <nav className="hidden lg:flex items-center gap-5 ml-5 text-sm font-bold"><button onClick={()=>go('/')} className={path==='/'?'text-teal-700':''}>Home</button><button onClick={()=>go('/shop')} className={path==='/shop'?'text-teal-700':''}>Shop</button><button onClick={()=>go('/account')} className={path==='/account'?'text-teal-700':''}>My Orders</button></nav>
+  <div className="hidden md:flex flex-1 max-w-md ml-auto relative"><Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400"/><input value={search} onChange={e=>setSearch(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go('/shop?search='+encodeURIComponent(search))} placeholder="Search products & services" className="w-full rounded-xl bg-slate-100 py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-teal-100"/></div>
+  <button onClick={()=>go('/account')} className="p-2 rounded-xl hover:bg-slate-100 relative" title={customer?'My Account':'Sign In'}><UserRound className="w-5 h-5"/>{customer&&<span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full"/>}</button>
+  <button onClick={()=>go('/cart')} className="p-2 rounded-xl hover:bg-slate-100 relative"><ShoppingCart className="w-5 h-5"/>{cart.length>0&&<span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-[10px] font-black grid place-items-center">{cart.reduce((n,i)=>n+i.quantity,0)}</span>}</button>
+ </div>{open&&<div className="lg:hidden border-t bg-white p-4 space-y-2"><button onClick={()=>go('/')} className="block w-full text-left p-3 rounded-xl font-bold">Home</button><button onClick={()=>go('/shop')} className="block w-full text-left p-3 rounded-xl font-bold">Shop</button><button onClick={()=>go('/account')} className="block w-full text-left p-3 rounded-xl font-bold">My Account / Orders</button><div className="flex gap-2 pt-2"><a href={'tel:'+identity.mobile} className="flex-1 p-3 rounded-xl bg-slate-100 text-center"><Phone className="w-4 h-4 inline mr-1"/>Call</a><a href={'https://wa.me/'+String(identity.whatsapp||identity.mobile).replace(/[^0-9]/g,'')} className="flex-1 p-3 rounded-xl bg-emerald-50 text-emerald-700 text-center"><MessageCircle className="w-4 h-4 inline mr-1"/>WhatsApp</a></div></div>}</header>;
 };
 
-const AppContent: React.FC = () => {
-  // Simple, robust client router that supports browser history
-  const [currentPath, setCurrentPath] = useState<string>(() => {
-    return window.location.pathname && window.location.pathname !== '/'
-      ? window.location.pathname
-      : '/';
-  });
+const Footer=({navigate}:{navigate:(p:string)=>void})=>{const {identity}=useStore();return <footer className="bg-slate-950 text-slate-300 mt-10"><div className="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-8"><div className="md:col-span-2"><div className="text-white font-black text-xl">{identity.name}</div><p className="text-sm mt-2 max-w-xl">{identity.tagline||'Air Ticket · Visa Processing · Passport & Digital Solutions'}</p><p className="text-xs text-slate-500 mt-4">{identity.address}</p></div><div><b className="text-white">Store</b><button onClick={()=>navigate('/shop')} className="block mt-3 text-sm">Shop</button><button onClick={()=>navigate('/account')} className="block mt-2 text-sm">My Account</button><button onClick={()=>navigate('/cart')} className="block mt-2 text-sm">Cart</button></div><div><b className="text-white">Contact</b><p className="text-sm mt-3">{identity.mobile}</p><p className="text-sm mt-2">{identity.email}</p></div></div><div className="border-t border-white/10 py-4 text-center text-xs text-slate-500">© {new Date().getFullYear()} {identity.name}. All rights reserved.</div></footer>};
 
-  useEffect(() => {
-    const handlePopState = () => {
-      setCurrentPath(window.location.pathname || '/');
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  const navigate = (path: string) => {
-    if (path !== currentPath) {
-      window.history.pushState({}, '', path);
-      setCurrentPath(path);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const renderPage = () => {
-    switch (currentPath) {
-      case '/':
-        return <HomePage navigate={navigate} />;
-      case '/air-ticket':
-        return <AirTicketPage navigate={navigate} />;
-      case '/visa':
-        return <VisaHubPage navigate={navigate} />;
-      case '/visa/india':
-        return <IndiaVisaPage navigate={navigate} />;
-      case '/visa/thailand':
-        return <ThailandVisaPage navigate={navigate} />;
-      case '/visa/saudi':
-        return <SaudiVisaPage navigate={navigate} />;
-      case '/umrah':
-        return <UmrahPage navigate={navigate} />;
-      case '/services':
-        return <OtherServicesPage navigate={navigate} />;
-      case '/payment':
-        return <PaymentPage navigate={navigate} />;
-      case '/about':
-        return <AboutPage navigate={navigate} />;
-      case '/contact':
-        return <ContactPage navigate={navigate} />;
-      case '/faq':
-        return <FAQPage navigate={navigate} />;
-      case '/blog':
-        return <BlogPage navigate={navigate} />;
-      case '/terms':
-        return <LegalPage navigate={navigate} defaultTab="terms" />;
-      case '/privacy':
-        return <LegalPage navigate={navigate} defaultTab="privacy" />;
-      case '/refund':
-        return <LegalPage navigate={navigate} defaultTab="refund" />;
-      case '/admin':
-        return <AdminGate navigate={navigate} />;
-      case '/upload':
-        return <CustomerUploadPage navigate={navigate} />;
-      case '/studio':
-        return <PhotoStudioPage navigate={navigate} />;
-      case '/tools/signature':
-        return <SignatureToolPage navigate={navigate} />;
-      case '/tools/document':
-        return <DocumentToolsPage navigate={navigate} />;
-      case '/tools/qr-stands':
-        return <QrStandsPage navigate={navigate} />;
-      case '/tools/print-templates':
-        return <PrintTemplatesPage navigate={navigate} />;
-      default:
-        return <HomePage navigate={navigate} />;
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased pb-16 lg:pb-0 print:p-0 print:bg-white print:text-black">
-      <div className="print:hidden">
-        <Navbar currentPath={currentPath} navigate={navigate} />
-      </div>
-
-      <main className="flex-grow print:p-0">
-        {renderPage()}
-      </main>
-
-      <div className="print:hidden">
-        <Footer navigate={navigate} />
-        {/* Floating Conversion CTAs & Modals */}
-        <FloatingWhatsApp />
-        <MobileQuickBar navigate={navigate} />
-        <QuickEnquiryModal />
-        <QrLightboxModal />
-        <NotificationToast />
-      </div>
-    </div>
-  );
-};
-
-export default function App() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  );
+function AppContent(){
+ const [path,setPath]=useState(window.location.pathname||'/');
+ const navigate=(p:string)=>{const clean=p.split('?')[0]||'/';window.history.pushState({},'',p);setPath(clean);window.scrollTo({top:0,behavior:'smooth'})};
+ React.useEffect(()=>{const h=()=>setPath(window.location.pathname||'/');window.addEventListener('popstate',h);return()=>window.removeEventListener('popstate',h)},[]);
+ const render=()=>{if(path==='/account')return <AccountPage navigate={navigate}/>;if(path==='/cart')return <StorefrontPage navigate={navigate} mode="cart"/>;if(path==='/checkout')return <StorefrontPage navigate={navigate} mode="checkout"/>;if(path==='/shop')return <StorefrontPage navigate={navigate} mode="shop"/>;return <StorefrontPage navigate={navigate} mode="home"/>};
+ return <div className="min-h-screen bg-slate-50 text-slate-900"><Header navigate={navigate} path={path}/>{render()}<Footer navigate={navigate}/></div>;
 }
+export default function App(){return <StoreProvider><AppContent/></StoreProvider>;}
