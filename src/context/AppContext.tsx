@@ -82,6 +82,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY_PREFIX = 'siam_air_';
+const ACCOUNTING_API_URL = String((import.meta as any).env?.VITE_ACCOUNTING_API_URL || 'https://siam-air-digital-service.onrender.com').replace(/\\/$/, '');
+
 
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
@@ -142,6 +144,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  // Accounting website is the master source for public business identity and service catalog.
+  useEffect(() => {
+    let cancelled = false;
+    const syncFromAccounting = async () => {
+      try {
+        const response = await fetch(ACCOUNTING_API_URL + '/api/storefront', { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Accounting storefront API returned ' + response.status);
+        const payload = await response.json();
+        if (cancelled) return;
+        if (payload?.settings) {
+          const s = payload.settings;
+          setBusinessInfo(prev => ({
+            ...prev,
+            name: s.name || prev.name,
+            addressEn: s.address || prev.addressEn,
+            addressBn: s.address || prev.addressBn,
+            phone: s.mobile || prev.phone,
+            whatsapp: s.whatsapp || prev.whatsapp,
+            email: s.email || prev.email,
+            facebookUrl: prev.facebookUrl,
+            whatsappUrl: s.whatsapp ? 'https://wa.me/' + String(s.whatsapp).replace(/[^0-9]/g, '') : prev.whatsappUrl,
+          }));
+        }
+        if (Array.isArray(payload?.services) && payload.services.length) {
+          const remote = payload.services;
+          setServices(prev => {
+            const byName = new Map(prev.map((item: ServiceItem) => [item.nameEn.toLowerCase(), item]));
+            return remote.map((item: any, index: number) => {
+              const existing = byName.get(String(item.name || '').toLowerCase());
+              const category = String(item.category || '').toLowerCase().includes('visa') ? 'travel_visa'
+                : String(item.category || '').toLowerCase().includes('umrah') ? 'umrah'
+                : 'computer_online';
+              return existing
+                ? { ...existing, nameEn: String(item.name || existing.nameEn), category, active: item.enabled !== false, order: Number(item.sort_order ?? existing.order ?? index + 1) }
+                : {
+                    id: String(item.id || 'accounting-' + index),
+                    slug: String(item.name || 'service').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                    nameEn: String(item.name || 'Service'),
+                    nameBn: String(item.name || 'Service'),
+                    descEn: 'Service available from SIAM AIR & DIGITAL SERVICE.',
+                    descBn: 'সিয়াম এয়ার এন্ড ডিজিটাল সার্ভিসের সেবা।',
+                    category,
+                    iconName: 'Compass',
+                    priceTextEn: 'Contact us',
+                    priceTextBn: 'যোগাযোগ করুন',
+                    whatsappMsgEn: String(item.name || 'Service'),
+                    whatsappMsgBn: String(item.name || 'সেবা'),
+                    detailsEn: [],
+                    detailsBn: [],
+                    active: item.enabled !== false,
+                    order: Number(item.sort_order ?? index + 1),
+                  } as ServiceItem;
+            });
+          });
+        }
+      } catch (error) {
+        console.warn('Accounting storefront sync unavailable; keeping local website data.', error);
+      }
+    };
+    void syncFromAccounting();
+    const timer = window.setInterval(syncFromAccounting, 60 * 1000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, []);
+
 
   const showNotification = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -267,6 +333,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addLead = (leadData: Omit<Lead, 'id' | 'date' | 'status'>): Lead => {
+    void fetch(ACCOUNTING_API_URL + '/api/storefront/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName: leadData.customerName,
+        phone: leadData.phone,
+        email: null,
+        service: leadData.service,
+        amount: 0,
+        note: leadData.message,
+      }),
+    }).catch(error => console.warn('Accounting order sync failed:', error));
+
     const newLead: Lead = {
       ...leadData,
       id: `LEAD-${Date.now().toString().slice(-4)}`,
