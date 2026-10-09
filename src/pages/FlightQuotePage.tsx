@@ -9,11 +9,11 @@ const labelClass = 'mb-1.5 block text-xs font-bold text-slate-700';
 export default function FlightQuotePage() {
   const [mode, setMode] = useState<Mode>('flight');
   const [tripType, setTripType] = useState('oneway');
-  const [from, setFrom] = useState('Dhaka (DAC)');
-  const [to, setTo] = useState('');
-  const [depart, setDepart] = useState('');
+  const [from, setFrom] = useState(() => new URLSearchParams(window.location.search).get('from') || 'Dhaka (DAC)');
+  const [to, setTo] = useState(() => new URLSearchParams(window.location.search).get('to') || '');
+  const [depart, setDepart] = useState(() => new URLSearchParams(window.location.search).get('date') || '');
   const [returnDate, setReturnDate] = useState('');
-  const [adults, setAdults] = useState('1');
+  const [adults, setAdults] = useState(() => new URLSearchParams(window.location.search).get('adults') || '1');
   const [children, setChildren] = useState('0');
   const [cabin, setCabin] = useState('Economy');
   const [airline, setAirline] = useState('Any available airline');
