@@ -6,7 +6,7 @@ import AccountPage from './pages/AccountPage';
 import ToolsPage from './pages/ToolsPage';
 import FlightQuotePage from './pages/FlightQuotePage';
 
-const Header=({navigate,path}:{navigate:(p:string)=>void;path:string})=>{
+const Header=({navigate,path,dark,setDark}:{navigate:(p:string)=>void;path:string;dark:boolean;setDark:React.Dispatch<React.SetStateAction<boolean>>})=>{
  const {identity,cart,customer}=useStore();const [open,setOpen]=useState(false);const [search,setSearch]=useState('');
  const go=(p:string)=>{setOpen(false);navigate(p)};
  return <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
@@ -25,10 +25,9 @@ function AppContent(){
  const [path,setPath]=useState(window.location.pathname||'/');
  const [dark,setDark]=useState(()=>{const h=new Date().getHours();return h>=18||h<6;});
  React.useEffect(()=>{document.documentElement.classList.toggle('theme-dark',dark);document.documentElement.style.colorScheme=dark?'dark':'light';},[dark]);
- React.useEffect(()=>{const timer=window.setInterval(()=>{const h=new Date().getHours();setDark(h>=18||h<6);},5*60*1000);return()=>window.clearInterval(timer)},[]);
  const navigate=(p:string)=>{const clean=p.split('?')[0]||'/';window.history.pushState({},'',p);setPath(clean);window.scrollTo({top:0,behavior:'smooth'})};
  React.useEffect(()=>{const h=()=>setPath(window.location.pathname||'/');window.addEventListener('popstate',h);return()=>window.removeEventListener('popstate',h)},[]);
  const render=()=>{if(path==='/account')return <AccountPage navigate={navigate}/>;if(path==='/flights')return <FlightQuotePage/>;if(path==='/tools')return <ToolsPage/>;if(path==='/cart')return <StorefrontPage navigate={navigate} mode="cart"/>;if(path==='/checkout')return <StorefrontPage navigate={navigate} mode="checkout"/>;if(path==='/shop')return <StorefrontPage navigate={navigate} mode="shop"/>;return <StorefrontPage navigate={navigate} mode="home"/>};
- return <div className="min-h-screen bg-slate-50 text-slate-900"><Header navigate={navigate} path={path}/>{render()}<Footer navigate={navigate}/></div>;
+ return <div className="min-h-screen bg-slate-50 text-slate-900"><Header navigate={navigate} path={path} dark={dark} setDark={setDark}/>{render()}<Footer navigate={navigate}/></div>;
 }
 export default function App(){return <StoreProvider><AppContent/></StoreProvider>;}
