@@ -15,3 +15,22 @@
 @layer utilities {
   .safe-bottom { padding-bottom:env(safe-area-inset-bottom); }
 }
+
+/* Automatic local-time theme. Logo canvas intentionally stays white for brand clarity. */
+html.theme-dark body { background:#020617; color:#e2e8f0; }
+.theme-dark .bg-white:not(.brand-logo) { background-color:#0f172a !important; }
+.theme-dark .bg-slate-50 { background-color:#020617 !important; }
+.theme-dark .bg-slate-100 { background-color:#1e293b !important; }
+.theme-dark .bg-sky-50 { background-color:#082f49 !important; }
+.theme-dark .bg-amber-50 { background-color:#451a03 !important; }
+.theme-dark .bg-emerald-50 { background-color:#052e16 !important; }
+.theme-dark .bg-rose-50 { background-color:#4c0519 !important; }
+.theme-dark .text-slate-900, .theme-dark .text-slate-800 { color:#f1f5f9 !important; }
+.theme-dark .text-slate-700, .theme-dark .text-slate-600 { color:#cbd5e1 !important; }
+.theme-dark .text-slate-500, .theme-dark .text-slate-400 { color:#94a3b8 !important; }
+.theme-dark .border-slate-100, .theme-dark .border-slate-200, .theme-dark .border-slate-300 { border-color:#334155 !important; }
+.theme-dark input, .theme-dark select, .theme-dark textarea { background-color:#111827; color:#f1f5f9; border-color:#475569; }
+.theme-dark input::placeholder, .theme-dark textarea::placeholder { color:#94a3b8; }
+.theme-dark header { background-color:rgba(2,6,23,.94) !important; border-color:#334155 !important; color:#f1f5f9; }
+.theme-dark .hover\\:bg-slate-100:hover { background-color:#1e293b !important; }
+.theme-dark .brand-logo { background:#fff !important; border-color:#e2e8f0 !important; }
