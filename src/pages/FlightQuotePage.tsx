@@ -36,23 +36,29 @@ export default function FlightQuotePage() {
     e.preventDefault();
     setError('');
     if (mode === 'flight' && !documentFile) {
-      setError('আন্তর্জাতিক ফ্লাইটের জন্য পাসপোর্ট কপি নির্বাচন করুন। ফাইলটি নিরাপদভাবে সংরক্ষণের ব্যবস্থা সক্রিয় না হওয়া পর্যন্ত অনুরোধ জমা দেওয়া যাবে না।');
+      setError('আন্তর্জাতিক ফ্লাইটের জন্য পাসপোর্ট কপি নির্বাচন করুন।');
       return;
     }
     setBusy(true);
+    setBusy(true);
     try {
-      const body = new FormData();
-      body.append('serviceType', mode);
-      body.append('customerName', name.trim());
-      body.append('email', email.trim());
-      body.append('phone', phone.trim());
-      body.append('whatsapp', whatsapp.trim());
-      body.append('details', JSON.stringify(mode === 'flight'
-        ? { tripType, from, to, depart, returnDate, adults: Number(adults), children: Number(children), cabin, preferredAirline: airline, carrierCommissionRule: airline === 'Legacy Carrier' ? 7 : 0, pricingStatus: 'QUOTE_PENDING', notes }
-        : { destination: to, checkIn, checkOut, rooms: Number(rooms), guests: Number(guests), pricingStatus: 'QUOTE_PENDING', notes }));
-      body.append('documentType', documentType);
-      if (documentFile) body.append('travelDocument', documentFile);
-      const response = await fetch(API + '/api/storefront/flight-requests', { method: 'POST', body });
+      let document: { name: string; mime: string; base64: string } | null = null;
+      if (documentFile) {
+        if (documentFile.size > 5 * 1024 * 1024) throw new Error('ডকুমেন্ট সর্বোচ্চ ৫ MB হতে পারবে।');
+        if (!['application/pdf', 'image/jpeg', 'image/png'].includes(documentFile.type)) throw new Error('শুধু PDF, JPG বা PNG ফাইল দিন।');
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error('ডকুমেন্ট পড়া যায়নি। আবার চেষ্টা করুন।'));
+          reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
+          reader.readAsDataURL(documentFile);
+        });
+        document = { name: documentFile.name, mime: documentFile.type, base64 };
+      }
+      const details = mode === 'flight'
+        ? { tripType, from, to, depart, returnDate, adults: Number(adults), children: Number(children), cabin, preferredAirline: airline, pricingStatus: 'QUOTE_PENDING', notes }
+        : { destination: to, checkIn, checkOut, rooms: Number(rooms), guests: Number(guests), pricingStatus: 'QUOTE_PENDING', notes };
+      const body = { serviceType: mode, customerName: name.trim(), email: email.trim(), phone: phone.trim(), whatsapp: whatsapp.trim(), details, documentType, document };
+      const response = await fetch(API + '/api/storefront/flight-requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Booking request service is not available yet. Please contact SIAM AIR by phone or WhatsApp.');
       setReference(String(result.reference || result.request?.reference || result.id || 'Submitted'));
