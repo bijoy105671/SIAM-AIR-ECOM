@@ -40,7 +40,6 @@ export default function FlightQuotePage() {
       return;
     }
     setBusy(true);
-    setBusy(true);
     try {
       let document: { name: string; mime: string; base64: string } | null = null;
       if (documentFile) {
